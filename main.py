@@ -8,7 +8,7 @@ from glob import glob
 
 
 NUM_CLASSES = 6
-DATA_DIR = "./Data/TrainDataSet"
+DATA_DIR = "./SHRC_GarbageDetection/Data/TrainDataSet"
 NUM_TRAIN_IMAGES = 669
 NUM_VAL_IMAGES = 50
 
@@ -23,8 +23,8 @@ def main():
     print(len(train_images))
     print(len(train_masks))
     # validate_count_of_images_and_masks(train_images)
-
-    label_path = "./Data/TrainDataSet/labelmap.txt"
+    # print(os.getcwd())
+    label_path = "./SHRC_GarbageDetection/Data/TrainDataSet/labelmap.txt"
     train_dataset = data_generator(train_images, train_masks, label_path)
     val_dataset = data_generator(val_images, val_masks, label_path)
 
@@ -40,13 +40,13 @@ def main():
     # model = train(train_dataset, val_dataset)
     
     # [2] 모델 불러오기
-    model = keras.models.load_model('model_2025-01-21 16:53:49.h5')
+    model = keras.models.load_model('SHRC_GarbageDetection/model_2025-01-21 16:53:49.h5')
 
     # [3] 컬러맵 생성 
-    # colormap = create_colormap(label_path)    
+    colormap = create_colormap(label_path)    
     
     # [4] 추론
-    # plot_random_predictions(train_images, colormap, model=model)    
+    plot_random_predictions(train_images, colormap, model=model)    
     acc = calculate_accuracy_from_dataset(val_dataset, model, "Random_Test_Acc")
     acc = calculate_random_accuracy(train_dataset, model, "Random_Test_Acc")
     # generate_synthetic_accuracy()
