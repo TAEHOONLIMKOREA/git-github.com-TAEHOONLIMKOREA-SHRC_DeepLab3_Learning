@@ -162,6 +162,7 @@ def DeeplabV3(num_classes):
 
     return tf.keras.Model(inputs=model_input, outputs=model_output)
 
+
 def train(train_dataset, val_dataset):
     # [1] 모델 학습. 
     # [1-1] GPU 메모리 설정 (선택 사항)
@@ -191,12 +192,11 @@ def train(train_dataset, val_dataset):
     # [2] 모델 저장
     current_time = datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
-    # [2-1] HDF5 형식으로 저장
-    model.save('model_' + formatted_time + '.h5')  # .h5 파일 형식으로 저장
+    # [2-1] keras 형식으로 저장
+    # model.save('SHRC_GarbageDetection/saved_model/model_' + formatted_time + '.keras')
 
-    # [2-2] TensorFlow SavedModel 형식으로 저장
-    model.save('saved_model/model_'+ formatted_time)  # 디렉토리로 저장
-
+    # [2-2] TensorFlow 디렉토리로 형식으로 저장
+    model.export('SHRC_GarbageDetection/saved_model/model_'+ formatted_time)  
     print("모델이 성공적으로 저장되었습니다.")
 
     # [3] history 저장
@@ -232,3 +232,55 @@ def train(train_dataset, val_dataset):
     plt.savefig("Acc_Loss_" + formatted_time)
     
     return model
+
+
+def continue_train(model_path, train_dataset, val_dataset, epochs=10, learning_rate=1e-5):
+    # [1] GPU 메모리 설정 (선택 사항)
+    gpus = tf.config.list_physical_devices('GPU')
+    if gpus:
+        try:
+            for gpu in gpus:
+                tf.config.experimental.set_memory_growth(gpu, True)
+        except RuntimeError as e:
+            print(e)
+    
+    # [2] MirroredStrategy 초기화
+    strategy = tf.distribute.MirroredStrategy()
+    
+    with strategy.scope():
+        # [3] 기존 모델 로드
+        print(f"모델 로드 중: {model_path}")
+        model = keras.models.load_model(model_path)
+        
+        model.summary()
+        print("Model output shape:", model.output_shape)
+        
+        # [4] 모델 재컴파일 (학습률 변경 등을 위해)
+        loss = keras.losses.SparseCategoricalCrossentropy(from_logits=True)
+        model.compile(
+            optimizer=keras.optimizers.Adam(learning_rate=learning_rate),
+            loss=loss,
+            metrics=['accuracy']
+        )
+        
+        # [5] 추가 학습 진행
+        print(f"\n추가 학습 시작 ({epochs} 에포크)")
+        history = model.fit(
+            train_dataset,
+            validation_data=val_dataset,
+            epochs=epochs
+        )
+    
+    # [6] 모델 저장
+    current_time = datetime.now()
+    formatted_time = current_time.strftime("%Y-%m-%d_%H-%M-%S")  # 파일명에 콜론(:) 사용 피하기
+    
+    # [6-1] keras 형식으로 저장
+    model.save(f'SHRC_GarbageDetection/saved_model/continued_model_{formatted_time}.keras')
+    
+    # [6-2] TensorFlow 디렉토리 형식으로 저장
+    save_path = f'SHRC_GarbageDetection/saved_model/continued_model_{formatted_time}'
+    model.export(save_path)
+    print(f"\n모델이 성공적으로 저장되었습니다: {save_path}")
+    
+    return history, model

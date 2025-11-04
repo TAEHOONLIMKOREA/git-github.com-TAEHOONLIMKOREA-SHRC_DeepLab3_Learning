@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 import tensorflow as tf
+from keras import layers
 import cv2
 from Module.TrainMethods import read_image
 from datetime import datetime
@@ -11,11 +12,54 @@ NUM_CLASSES = 6
 
 
 def infer(model, image_tensor):
-    predictions = model.predict(np.expand_dims((image_tensor), axis=0))
+    """
+    image_tensor: 
+      - 단일 이미지: shape (H, W, C)
+      - 여러 이미지: shape (N, H, W, C)
+    """
+    # 배치 차원이 없으면 자동 추가
+    if image_tensor.ndim == 3:
+        x = np.expand_dims(image_tensor, axis=0)
+    else:
+        x = image_tensor
+
+    x = tf.convert_to_tensor(x, dtype=tf.float32)
+
+    # 일반 Keras 모델(.h5/.keras)
+    if hasattr(model, "predict"):
+        predictions = model.predict(x)
+
+    # SavedModel (TFSMLayer)
+    elif isinstance(model, layers.TFSMLayer):
+        try:
+            y = model(x, training=False)
+        except Exception as e:
+            for k in ["input", "inputs", "image", "images"]:
+                try:
+                    y = model({k: x}, training=False)
+                    break
+                except Exception:
+                    pass
+            else:
+                raise e
+
+        predictions = y
+        if isinstance(predictions, dict):
+            predictions = next(iter(predictions.values()))
+        predictions = predictions.numpy()
+
+    else:
+        raise TypeError(f"Unsupported model type: {type(model)}")
+
+    return predictions
+
+
+def post_process_predictions(predictions):
+    # 후처리 (예측 마스크)
     predictions = np.squeeze(predictions)
     predictions = np.argmax(predictions, axis=2)
-    print("Predictions shape:", predictions.shape)  # 출력 크기 확인
-    print("Unique values in predictions:", np.unique(predictions))  # 예측 값 확인
+    print("Predictions shape:", predictions.shape)
+    print("Unique values in predictions:", np.unique(predictions))
     return predictions
 
 
@@ -45,7 +89,8 @@ def plot_random_predictions(images_list, colormap, model):
 
     for image_file in random.sample(images_list, 9):  # 이미지 리스트에서 무작위로 9개 선택
         image_tensor = read_image(image_file)
-        prediction_mask = infer(image_tensor=image_tensor, model=model)
+        prediction = infer(image_tensor=image_tensor, model=model)
+        prediction_mask = post_process_predictions(prediction)
         prediction_colormap = decode_segmentation_masks(prediction_mask, colormap)
         overlay = get_overlay(image_tensor, prediction_colormap)
 
@@ -92,7 +137,7 @@ def calculate_accuracy_from_dataset(dataset, model, save_path):
 
     for images, true_masks in dataset:
         # 모델 예측 수행
-        predictions = model.predict(images)
+        predictions = infer(image_tensor=images, model=model)
         predictions = np.argmax(predictions, axis=-1)  # 채널 차원에서 argmax
 
         # 배치 단위로 정확도 계산
@@ -208,7 +253,8 @@ def calculate_random_accuracy(dataset, model, save_path):
         image, true_mask = dataset_list[idx]
 
         # 모델 예측 수행
-        prediction = model.predict(np.expand_dims(image, axis=0))
+        prediction = infer(image_tensor=image, model=model)
+        # prediction = model.predict(np.expand_dims(image, axis=0))
         prediction = np.argmax(prediction, axis=-1)[0]  # 채널 차원에서 argmax 후 첫 번째 결과 사용
 
         # Flatten하여 accuracy_score 계산

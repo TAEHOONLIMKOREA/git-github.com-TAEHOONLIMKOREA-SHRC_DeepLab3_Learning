@@ -1,16 +1,23 @@
-from Module.TrainMethods import data_generator, read_image, train
-from Module.GarbageDetectMethods import plot_random_predictions, calculate_accuracy_from_dataset, generate_synthetic_accuracy, calculate_random_accuracy
-from Module.InferMethods import create_colormap
+from Module.TrainMethods import data_generator, read_image, train, continue_train
+from Module.InferMethods import plot_random_predictions, calculate_accuracy_from_dataset, generate_synthetic_accuracy, calculate_random_accuracy, create_colormap, infer
 from Module.ProcessingMethods import display_images_and_masks, validate_count_of_images_and_masks, validate_mask_classes
 from tensorflow import keras
+from keras import layers
 import os
 from glob import glob
 
 
 NUM_CLASSES = 6
-DATA_DIR = "./SHRC_GarbageDetection/Data/TrainDataSet"
-NUM_TRAIN_IMAGES = 669
-NUM_VAL_IMAGES = 50
+# DATA_DIR = "./SHRC_GarbageDetection/Data/TrainDataSet"
+# LBAEL_PATH = "./SHRC_GarbageDetection/Data/TrainDataSet/labelmap.txt"
+# NUM_TRAIN_IMAGES = 669
+# NUM_VAL_IMAGES = 50
+
+DATA_DIR = "./SHRC_GarbageDetection/Data/TrainDataSet_WhiteBall"
+LBAEL_PATH = "./SHRC_GarbageDetection/Data/TrainDataSet_WhiteBall/labelmap.txt"
+NUM_TRAIN_IMAGES = 137
+NUM_VAL_IMAGES = 20
+
 
 
 def main():    
@@ -24,9 +31,8 @@ def main():
     print(len(train_masks))
     # validate_count_of_images_and_masks(train_images)
     # print(os.getcwd())
-    label_path = "./SHRC_GarbageDetection/Data/TrainDataSet/labelmap.txt"
-    train_dataset = data_generator(train_images, train_masks, label_path)
-    val_dataset = data_generator(val_images, val_masks, label_path)
+    train_dataset = data_generator(train_images, train_masks, LBAEL_PATH)
+    val_dataset = data_generator(val_images, val_masks, LBAEL_PATH)
 
 
     
@@ -38,17 +44,24 @@ def main():
     
     # [1] 학습  
     # model = train(train_dataset, val_dataset)
-    
+    model_path = '/home/keti_taehoon/SHRC_GarbageDetection/saved_model/model_2025-11-04 06:59:39.keras'
+    continue_train(model_path, train_dataset, val_dataset, epochs=20)
+        
     # [2] 모델 불러오기
-    model = keras.models.load_model('SHRC_GarbageDetection/model_2025-01-21 16:53:49.h5')
+    # model = keras.models.load_model('SHRC_GarbageDetection/saved_model/model_2025-11-04 06:59:39.keras')
+    # model = layers.TFSMLayer(
+    #     "SHRC_GarbageDetection/saved_model/model_2025-11-04 07:41:14",
+    #     call_endpoint="serving_default"  # 대부분 이 이름을 씁니다
+    # )
+    
 
     # [3] 컬러맵 생성 
-    colormap = create_colormap(label_path)    
+    # colormap = create_colormap(label_path)    
     
     # [4] 추론
-    plot_random_predictions(train_images, colormap, model=model)    
-    acc = calculate_accuracy_from_dataset(val_dataset, model, "Random_Test_Acc")
-    acc = calculate_random_accuracy(train_dataset, model, "Random_Test_Acc")
+    # plot_random_predictions(train_images, colormap, model=model)    
+    # acc = calculate_accuracy_from_dataset(val_dataset, model, "Random_Test_Acc")
+    # acc = calculate_random_accuracy(train_dataset, model, "Random_Test_Acc")
     # generate_synthetic_accuracy()
     # print(acc)
 
