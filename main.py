@@ -9,12 +9,12 @@ from glob import glob
 
 NUM_CLASSES = 6
 # DATA_DIR = "./SHRC_GarbageDetection/Data/TrainDataSet"
-# LBAEL_PATH = "./SHRC_GarbageDetection/Data/TrainDataSet/labelmap.txt"
+LBAEL_PATH = "./SHRC_GarbageDetection/Data/TrainDataSet/labelmap.txt"
 # NUM_TRAIN_IMAGES = 669
 # NUM_VAL_IMAGES = 50
 
 DATA_DIR = "./SHRC_GarbageDetection/Data/TrainDataSet_WhiteBall"
-LBAEL_PATH = "./SHRC_GarbageDetection/Data/TrainDataSet_WhiteBall/labelmap.txt"
+# LBAEL_PATH = "./SHRC_GarbageDetection/Data/TrainDataSet_WhiteBall/labelmap.txt"
 NUM_TRAIN_IMAGES = 137
 NUM_VAL_IMAGES = 20
 
@@ -42,13 +42,14 @@ def main():
     # 배치 사이즈 만큼 무작위로 사진과 마스크 출력
     # display_images_and_masks(train_dataset)
     
-    # [1] 학습  
-    # model = train(train_dataset, val_dataset)
+    # [1-1] 학습시
+    model = train(train_dataset, val_dataset)
+    # [1-2]추가 학습시
     model_path = '/home/keti_taehoon/SHRC_GarbageDetection/saved_model/model_2025-11-04 06:59:39.keras'
     continue_train(model_path, train_dataset, val_dataset, epochs=20)
         
     # [2] 모델 불러오기
-    # model = keras.models.load_model('SHRC_GarbageDetection/saved_model/model_2025-11-04 06:59:39.keras')
+    # model = keras.models.load_model('SHRC_GarbageDetection/saved_model/continued_model_2025-11-04_12-15-16.keras')
     # model = layers.TFSMLayer(
     #     "SHRC_GarbageDetection/saved_model/model_2025-11-04 07:41:14",
     #     call_endpoint="serving_default"  # 대부분 이 이름을 씁니다
@@ -56,7 +57,7 @@ def main():
     
 
     # [3] 컬러맵 생성 
-    # colormap = create_colormap(label_path)    
+    # colormap = create_colormap(LBAEL_PATH)    
     
     # [4] 추론
     # plot_random_predictions(train_images, colormap, model=model)    

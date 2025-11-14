@@ -193,10 +193,10 @@ def train(train_dataset, val_dataset):
     current_time = datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S")
     # [2-1] keras 형식으로 저장
-    # model.save('SHRC_GarbageDetection/saved_model/model_' + formatted_time + '.keras')
+    model.save('SHRC_GarbageDetection/saved_model/model_' + formatted_time + '.keras')
 
     # [2-2] TensorFlow 디렉토리로 형식으로 저장
-    model.export('SHRC_GarbageDetection/saved_model/model_'+ formatted_time)  
+    # model.export('SHRC_GarbageDetection/saved_model/model_'+ formatted_time)  
     print("모델이 성공적으로 저장되었습니다.")
 
     # [3] history 저장
