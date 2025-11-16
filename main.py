@@ -9,14 +9,14 @@ from glob import glob
 
 NUM_CLASSES = 6
 # DATA_DIR = "./SHRC_GarbageDetection/Data/TrainDataSet"
-LBAEL_PATH = "./SHRC_GarbageDetection/Data/TrainDataSet/labelmap.txt"
+DATA_DIR = "/home/keti_taehoon/SHRC_DeepLab3Plus_Learning/Data/TrainDataSet_WhiteBall40m_Aug"
+# LBAEL_PATH = "./SHRC_GarbageDetection/Data/TrainDataSet/labelmap.txt"
+LBAEL_PATH = "/home/keti_taehoon/SHRC_DeepLab3Plus_Learning/Data/TrainDataSet_WhiteBall40m_Aug/labelmap.txt"
 # NUM_TRAIN_IMAGES = 669
 # NUM_VAL_IMAGES = 50
 
-DATA_DIR = "./SHRC_GarbageDetection/Data/TrainDataSet_WhiteBall"
-# LBAEL_PATH = "./SHRC_GarbageDetection/Data/TrainDataSet_WhiteBall/labelmap.txt"
-NUM_TRAIN_IMAGES = 137
-NUM_VAL_IMAGES = 20
+NUM_TRAIN_IMAGES = 2557
+NUM_VAL_IMAGES = 450
 
 
 
@@ -43,9 +43,9 @@ def main():
     # display_images_and_masks(train_dataset)
     
     # [1-1] 학습시
-    model = train(train_dataset, val_dataset)
+    # model = train(train_dataset, val_dataset)
     # [1-2]추가 학습시
-    model_path = '/home/keti_taehoon/SHRC_GarbageDetection/saved_model/model_2025-11-04 06:59:39.keras'
+    model_path = '/home/keti_taehoon/SHRC_DeepLab3Plus_Learning/saved_model/model_2025-11-04 06:59:39.keras'
     continue_train(model_path, train_dataset, val_dataset, epochs=20)
         
     # [2] 모델 불러오기
