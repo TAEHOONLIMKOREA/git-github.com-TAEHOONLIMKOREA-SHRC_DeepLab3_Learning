@@ -9,23 +9,23 @@ from glob import glob
 
 NUM_CLASSES = 6
 # DATA_DIR = "./SHRC_GarbageDetection/Data/TrainDataSet"
-DATA_DIR = "/home/keti_taehoon/SHRC_DeepLab3Plus_Learning/Data/TrainDataSet_WhiteBall40m_Aug"
+DATA_DIR = "/home/keti_taehoon/SHRC_DeepLab3Plus_Learning/Data/TrainDataSet_Oct_50m"
 # LBAEL_PATH = "./SHRC_GarbageDetection/Data/TrainDataSet/labelmap.txt"
-LBAEL_PATH = "/home/keti_taehoon/SHRC_DeepLab3Plus_Learning/Data/TrainDataSet_WhiteBall40m_Aug/labelmap.txt"
+LBAEL_PATH = "/home/keti_taehoon/SHRC_DeepLab3Plus_Learning/Data/TrainDataSet_Oct_50m/labelmap.txt"
 # NUM_TRAIN_IMAGES = 669
 # NUM_VAL_IMAGES = 50
 
-NUM_TRAIN_IMAGES = 2557
-NUM_VAL_IMAGES = 450
+NUM_TRAIN_IMAGES = 2500
+NUM_VAL_IMAGES = 485
 
 
 
 def main():    
     # [1] 훈련용 데이터셋 준비
-    train_images = sorted(glob(os.path.join(DATA_DIR, 'Images/*')))[:NUM_TRAIN_IMAGES]
-    train_masks = sorted(glob(os.path.join(DATA_DIR, 'SegmentationClass/*')))[:NUM_TRAIN_IMAGES]
-    val_images = sorted(glob(os.path.join(DATA_DIR, 'Images/*')))[NUM_TRAIN_IMAGES:NUM_VAL_IMAGES+NUM_TRAIN_IMAGES]
-    val_masks = sorted(glob(os.path.join(DATA_DIR, 'SegmentationClass/*')))[NUM_TRAIN_IMAGES:NUM_VAL_IMAGES+NUM_TRAIN_IMAGES]
+    train_images = sorted(glob(os.path.join(DATA_DIR, 'Aug_Images/*')))[:NUM_TRAIN_IMAGES]
+    train_masks = sorted(glob(os.path.join(DATA_DIR, 'Aug_SegmentationClass/*')))[:NUM_TRAIN_IMAGES]
+    val_images = sorted(glob(os.path.join(DATA_DIR, 'Aug_Images/*')))[NUM_TRAIN_IMAGES:NUM_VAL_IMAGES+NUM_TRAIN_IMAGES]
+    val_masks = sorted(glob(os.path.join(DATA_DIR, 'Aug_SegmentationClass/*')))[NUM_TRAIN_IMAGES:NUM_VAL_IMAGES+NUM_TRAIN_IMAGES]
     
     print(len(train_images))
     print(len(train_masks))
@@ -45,7 +45,7 @@ def main():
     # [1-1] 학습시
     # model = train(train_dataset, val_dataset)
     # [1-2]추가 학습시
-    model_path = '/home/keti_taehoon/SHRC_DeepLab3Plus_Learning/saved_model/model_2025-11-04 06:59:39.keras'
+    model_path = '/home/keti_taehoon/SHRC_DeepLab3Plus_Learning/saved_model/continued_model_2025-11-17_17-43-53.keras'
     continue_train(model_path, train_dataset, val_dataset, epochs=20)
         
     # [2] 모델 불러오기

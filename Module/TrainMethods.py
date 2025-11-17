@@ -2,6 +2,7 @@ from glob import glob
 from scipy.io import loadmat
 import json
 from datetime import datetime
+import os
 
 import tensorflow as tf
 from tensorflow import keras
@@ -275,11 +276,13 @@ def continue_train(model_path, train_dataset, val_dataset, epochs=10, learning_r
     current_time = datetime.now()
     formatted_time = current_time.strftime("%Y-%m-%d_%H-%M-%S")  # 파일명에 콜론(:) 사용 피하기
     
+    save_dir = os.path.dirname(model_path)
+    save_path = os.path.join(save_dir, f'continued_model_{formatted_time}.keras')
     # [6-1] keras 형식으로 저장
-    model.save(f'SHRC_GarbageDetection/saved_model/continued_model_{formatted_time}.keras')
+    model.save(save_path)
     
     # [6-2] TensorFlow 디렉토리 형식으로 저장
-    save_path = f'SHRC_GarbageDetection/saved_model/continued_model_{formatted_time}'
+    # save_path = f'SHRC_DeepLab3Plus_Learning/saved_model/continued_model_{formatted_time}'
     model.export(save_path)
     print(f"\n모델이 성공적으로 저장되었습니다: {save_path}")
     
